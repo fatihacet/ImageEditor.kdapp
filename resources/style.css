@@ -1,0 +1,184 @@
+.imageEditor {
+  background: url(images/bg.jpg);
+  margin: -5px;
+  padding: 10px;
+}
+.imageView {
+  margin-left: 50px;
+}
+.imageEditor .icon {
+  width: 32px;
+  height: 32px;
+  background: url(images/icons.png) no-repeat 0 0;
+}
+.sliderFieldContainer {
+  height: 25px;
+  line-height: 25px;
+  margin: 5px 0;
+  float: left; 
+  width: 140px;
+}
+.sliderFieldContainer .kdview {
+  float: left;
+  width: 90px;
+}
+.sliderFieldContainer .text {
+  width: 40px;
+}
+.customControllersView {
+  margin-left: 20px;
+}
+.presetButtonsView {
+  padding: 20px;
+}
+.settingsToolbar {
+  border: none;
+  position: absolute;
+  width: 50px;
+  z-index: 10;
+  background: url(images/bg.jpg);
+}
+.toolbarButtons {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  background: #e2e2e2;
+  height: 300px;
+  width: 38px;
+}
+.mainSplitView {
+  float: left;
+  padding-left: 65px;
+}
+.presetButtonsView .kdbutton {
+  width: 60px;
+  margin: 0 10px 10px 0;
+}
+.settingsView .kdheaderview {
+  border-bottom: none;
+}
+.presetButtonsView .kdbutton:hover,
+.presetButtonsView .kdbutton:active,
+.presetButtonsView .kdbutton:focus,
+.toolbarButtons .kdbutton:focus,
+.toolbarButtons .kdbutton:hover,
+.toolbarButtons .kdbutton:active {
+  border: none;
+  background: none;
+  box-shadow: none;
+}
+.presetButtonsView .kdbutton,
+.toolbarButtons .kdbutton {
+  border: none;
+  padding: 0;
+  background: none;
+}
+.imageEditorImage {
+  background: url(images/transparent.png);
+}
+.presetButtonsView .icon,
+.toolbarButtons .icon {
+  display: block !important;
+  visibility: visible !important;
+}
+.presetButtonsView .icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  background: url(images/filters.png) 0 0 no-repeat;
+}
+.modalNotificationText {
+  margin: 10px 20px 0;
+  font-size: 11px;
+  color: #999;
+}
+.settingsView .kdheaderview span {
+  float: left;
+}
+.settingsView .kdheaderview div {
+  float: right;
+}
+.toolbarButtons .kdbutton .icon {
+  width: 32px;
+  height: 32px;
+}
+.toolbarButtons .kdbutton {
+  font-size: 12px;
+  display: block;
+  width: 32px;
+  height: 42px;
+}
+.imageViewDropTarget {
+  width: 400px;
+  height: 200px;
+  border: 3px dashed #444;
+  border-radius: 8px;
+  margin: 20px;
+}
+.dropText {
+  font-size: 20px;
+  text-align: center;
+  margin-top: 85px;
+}
+.imageEditorLinks {
+  float: left;
+  margin: 20px;
+  cursor: pointer;
+  padding-left: 32px;
+  background: url(images/icons.png) no-repeat;
+  font-size: 14px;
+  width: 184px;
+  height: 32px;
+  line-height: 32px;
+}
+.revertButton,
+.revert .icon {
+  color: #444;
+  background-position: 0 0;
+}
+.settingsView .kdheaderview .revertButton {
+  margin-right: 23px;
+  text-decoration: none;
+  padding-left: 20px;
+}
+.presetButtonsView .kdview,
+.customControllersView .kdview {
+  overflow: auto;
+}
+.resizeNotification {
+  font-size: 11px;
+  color: #ccc;
+  height: 26px;
+  margin-top: 20px;
+  width: 420px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 6px;
+}
+.imageEditorLinks.url         { background-position: 0 -158px; }
+.imageEditorLinks.sampleImage { background-position: 0 -225px; }
+.toolbarButtons .preset .icon { background-position: 4px -193px; }
+.toolbarButtons .custom .icon { background-position: 8px 1px; }
+.toolbarButtons .save   .icon { background-position: 10px -60px; }
+.toolbarButtons .revert .icon { background-position: 8px -125px; }
+.toolbarButtons .cancel .icon { background-position: 10px -327px }
+.toolbarButtons .link   .icon { background-position: 0 0; }
+.toolbarButtons .crop   .icon { background-position: 7px -28px; }
+.toolbarButtons .resize .icon { background-position: 5px -264px; }
+.vintage .icon                { background-position: 0 0; }
+.lomo .icon                   { background-position: 0 -60px; }
+.clarity .icon                { background-position: 0 -120px; }
+.sinCity .icon                { background-position: 0 -180px; }
+.sunrise .icon                { background-position: 0 -240px; }
+.crossProcess .icon           { background-position: 0 -300px; }
+.orangePeel .icon             { background-position: 0 -360px; }
+.love .icon                   { background-position: 0 -420px; }
+.grungy .icon                 { background-position: 0 -480px; }
+.jarques .icon                { background-position: 0 -540px; }
+.pinhole .icon                { background-position: 0 -600px; }
+.oldBoot .icon                { background-position: 0 -660px; }
+.glowingSun .icon             { background-position: 0 -720px; }
+.hazyDays .icon               { background-position: 0 -780px; }
+.herMajesty .icon             { background-position: 0 -840px; }
+.nostalgia .icon              { background-position: 0 -900px; }
+.hemingway .icon              { background-position: 0 -960px; }
+.concentrate .icon            { background-position: 0 -1020px; }

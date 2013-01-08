@@ -1,0 +1,40 @@
+{
+  "devMode": true,
+  "version": "0.1",
+  "name": "ImageEditor",
+  "identifier": "com.koding.apps.imageeditor",
+  "path": "~/Applications/ImageEditor.kdapp",
+  "homepage": "fatihacet.koding.com/imageeditor",
+  "author": "Fatih Acet",
+  "repository": "git://github.com/fatihacet/imageeditor.kdapp.git",
+  "description": "ImageEditor : a Koding application created with the blank template.",
+  "category": "web-app",
+  "source": {
+    "blocks": {
+      "app": {
+        "files": [
+          "./lib/caman.full.min.js",
+          "./app/settings.coffee",
+          "./app/SampleImage.coffee",
+          "./app/ImageView.coffee",
+          "./app/SettingsToolbar.coffee",
+          "./app/CustomControllersView.coffee",
+          "./app/PresetButtonsView.coffee",
+          "./app/SettingsView.coffee",
+          "./app/SliderField.coffee",
+          "./app/BaseView.coffee",
+          "./index.coffee"
+        ]
+      }
+    },
+    "stylesheets": [
+      "./resources/style.css"
+    ]
+  },
+  "options": {
+    "type": "tab"
+  },
+  "icns": {
+    "128": "./resources/icon.128.png"
+  }
+}

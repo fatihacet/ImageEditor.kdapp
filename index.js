@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Wed Jan 09 2013 13:52:47 GMT-0800 (PST) in server time
+// Compiled by Koding Servers at Wed Jan 09 2013 14:32:48 GMT-0800 (PST) in server time
 
 (function() {
 
@@ -307,7 +307,9 @@ ImageView = (function(_super) {
       return _this.cancelEditing();
     });
     this.on("SAVE", function() {
-      return console.log(caman);
+      return new KDNotificationView({
+        title: "This feature will be implemented soon. Stay tuned!"
+      });
     });
     this.on("RESIZE", function() {
       return _this.openResizeModal();

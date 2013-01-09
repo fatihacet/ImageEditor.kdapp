@@ -14,7 +14,7 @@ class SliderField extends JView
           <div class="label">#{options.fieldLabel}</div>
         """
       
-    field = new KDInputView
+    @field = new KDInputView
       validate      :
         event       : "keyup"
         rules       :
@@ -22,14 +22,11 @@ class SliderField extends JView
         messages    :
           required  : "Enter a value for #{options.fieldLabel}"
       change: =>
-        @emit "FILTER_CHANGED", field.getValue()
+        @emit "FILTER_CHANGED", @field.getValue()
     
-    field.options.filterKey = options.filterKey
+    @field.getOptions().filterKey = options.filterKey
     
-    field.setValue(0);
-    
-    # TODO: Should remove that line
-    @field = field;
+    @field.setValue(0);
     
   pistachio: ->
     """

@@ -13,6 +13,7 @@ class ImageView extends JView
       partial  : """
         <p class="dropText">Drop your image here from file tree</p>
       """
+      bind     : 'dragstart dragenter dragleave dragend dragover drop'  # TODO: Remove unused events
       
       
     @openUrlLink = new KDView
@@ -45,10 +46,12 @@ class ImageView extends JView
     @resizeNotification.hide()
     
     
-    @dropTarget.bindEvent 'drop'
-    @dropTarget.on 'drop', (e) ->
-      console.log e.originalEvent.dataTransfer
+    @dropTarget.on "drop", (e) =>
+      path = e.originalEvent.dataTransfer.getData('Text')
       
+      if path
+        @doKiteRequest "cat #{path}|base64", (res) => 
+          @openImage "data:image/png;base64,#{res}"
       
     @on "CANCEL_EDITING", => 
       @cancelEditing()
@@ -57,7 +60,7 @@ class ImageView extends JView
     @on "SAVE", =>
       new KDNotificationView
         title: "This feature will be implemented soon. Stay tuned!"
-        
+      
       
     @on "RESIZE", =>
       @openResizeModal()
@@ -75,6 +78,7 @@ class ImageView extends JView
       {{> @resizeNotification }}
       {{> @image }}
     """
+  
   
   openImageFromUrlModal: -> 
     imageFromUrlModal = new KDModalViewWithForms
@@ -102,7 +106,7 @@ class ImageView extends JView
                 callback      : =>
                   url = imageFromUrlModal.modalTabs.forms.imageUrlForm.inputs.url.getValue()
                   if url
-                    KD.getSingleton('kiteController').run "curl -klAx #{url}|base64", (err, res) =>
+                    @doKiteRequest "curl -klAx #{url}|base64", (res) =>
                       @openImage "data:image/png;base64,#{res}"
                       imageFromUrlModal.destroy()
               Cancel          :
@@ -111,6 +115,7 @@ class ImageView extends JView
                 callback      : ->
                   imageFromUrlModal.destroy()
                   
+  
   openResizeModal: -> 
     resizeModal = new KDModalViewWithForms
       title                   : "Resize Your Image"
@@ -149,6 +154,7 @@ class ImageView extends JView
                 callback      : ->
                   resizeModal.destroy()
 
+  
   openCropModal: -> 
     cropModal = new KDModalViewWithForms
       title                   : "Crop Your Image"
@@ -187,8 +193,18 @@ class ImageView extends JView
                 style         : "modal-clean-red"
                 callback      : ->
                   cropModal.destroy()
-
-
+                  
+    
+  doKiteRequest: (command, callback) ->
+    KD.getSingleton('kiteController').run command, (err, res) =>
+      console.log res
+      if res
+        callback(res) if callback
+      else 
+        new KDNotificationView
+          title: "An error occured while processing your request, try again please!"
+    
+    
   openImage: (imageData) ->
     @dropTarget.hide()
     @openUrlLink.hide()
@@ -228,6 +244,7 @@ class ImageView extends JView
   repositionCanvas: ->
     if caman and caman.canvas
       caman.canvas.style.top = @getHeight() / 2 - caman.canvas.height / 2 + "px"
+      
   
   cancelEditing: ->
     @dropTarget.show()

@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Tue Jan 08 2013 16:31:22 GMT-0800 (PST) in server time
+// Compiled by Koding Servers at Wed Jan 09 2013 13:52:47 GMT-0800 (PST) in server time
 
 (function() {
 
@@ -251,7 +251,7 @@ var ImageView, caman,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-caman = window.caman = null;
+caman = null;
 
 ImageView = (function(_super) {
 
@@ -266,7 +266,8 @@ ImageView = (function(_super) {
     ImageView.__super__.constructor.call(this, options);
     this.dropTarget = new KDView({
       cssClass: "imageViewDropTarget",
-      partial: "<p class=\"dropText\">Drop your image here from file tree</p>"
+      partial: "<p class=\"dropText\">Drop your image here from file tree</p>",
+      bind: 'dragstart dragenter dragleave dragend dragover drop'
     });
     this.openUrlLink = new KDView({
       tag: "a",
@@ -293,17 +294,20 @@ ImageView = (function(_super) {
       partial: "Your image has been resized due to performance issues while editing process. \nYou can still save the original version as processed after your edit."
     });
     this.resizeNotification.hide();
-    this.dropTarget.bindEvent('drop');
-    this.dropTarget.on('drop', function(e) {
-      return console.log(e.originalEvent.dataTransfer);
+    this.dropTarget.on("drop", function(e) {
+      var path;
+      path = e.originalEvent.dataTransfer.getData('Text');
+      if (path) {
+        return _this.doKiteRequest("cat " + path + "|base64", function(res) {
+          return _this.openImage("data:image/png;base64," + res);
+        });
+      }
     });
     this.on("CANCEL_EDITING", function() {
       return _this.cancelEditing();
     });
     this.on("SAVE", function() {
-      return new KDNotificationView({
-        title: "This feature will be implemented soon. Stay tuned!"
-      });
+      return console.log(caman);
     });
     this.on("RESIZE", function() {
       return _this.openResizeModal();
@@ -349,7 +353,7 @@ ImageView = (function(_super) {
                   var url;
                   url = imageFromUrlModal.modalTabs.forms.imageUrlForm.inputs.url.getValue();
                   if (url) {
-                    return KD.getSingleton('kiteController').run("curl -klAx " + url + "|base64", function(err, res) {
+                    return _this.doKiteRequest("curl -klAx " + url + "|base64", function(res) {
                       _this.openImage("data:image/png;base64," + res);
                       return imageFromUrlModal.destroy();
                     });
@@ -476,6 +480,22 @@ ImageView = (function(_super) {
     });
   };
 
+  ImageView.prototype.doKiteRequest = function(command, callback) {
+    var _this = this;
+    return KD.getSingleton('kiteController').run(command, function(err, res) {
+      console.log(res);
+      if (res) {
+        if (callback) {
+          return callback(res);
+        }
+      } else {
+        return new KDNotificationView({
+          title: "An error occured while processing your request, try again please!"
+        });
+      }
+    });
+  };
+
   ImageView.prototype.openImage = function(imageData) {
     var accepted, img, imgHeight, imgWidth, timestamp,
       _this = this;
@@ -483,7 +503,7 @@ ImageView = (function(_super) {
     this.openUrlLink.hide();
     this.openSampleImageLink.hide();
     timestamp = +(new Date);
-    imageData = imageData || 'resources/images/edi-budu.jpg';
+    imageData = imageData || sampleImageBase64Encoded;
     this.image.updatePartial("<img id=\"image" + timestamp + "\" src=\"" + imageData + "\"/>");
     caman = Caman("#image" + timestamp, function() {
       return _this.repositionCanvas();

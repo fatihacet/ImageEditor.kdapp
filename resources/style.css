@@ -3,19 +3,20 @@
   margin: -5px;
   padding: 10px;
 }
-.imageView {
-  margin-left: 50px;
-}
 .imageEditor .icon {
   width: 32px;
   height: 32px;
   background: url(images/icons.png) no-repeat 0 0;
 }
+.imageEditor canvas {
+  position: relative;
+  left: 25px;
+}
 .sliderFieldContainer {
   height: 25px;
   line-height: 25px;
   margin: 5px 0;
-  float: left; 
+  float: left;
   width: 140px;
 }
 .sliderFieldContainer .kdview {
@@ -40,6 +41,7 @@
 }
 .toolbarButtons {
   border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.2);
   border-radius: 6px;
   background: #e2e2e2;
   height: 300px;
@@ -74,6 +76,7 @@
 }
 .imageEditorImage {
   background: url(images/transparent.png);
+  text-align: center;
 }
 .presetButtonsView .icon,
 .toolbarButtons .icon {
@@ -113,6 +116,7 @@
   border: 3px dashed #444;
   border-radius: 8px;
   margin: 20px;
+  left: 50px;
 }
 .dropText {
   font-size: 20px;
@@ -126,7 +130,7 @@
   padding-left: 32px;
   background: url(images/icons.png) no-repeat;
   font-size: 14px;
-  width: 184px;
+  width: 235px;
   height: 32px;
   line-height: 32px;
 }
@@ -153,8 +157,9 @@
   border: 1px solid #ddd;
   padding: 10px;
   border-radius: 6px;
+  left: 50px;
 }
-.imageEditorLinks.url         { background-position: 0 -158px; }
+.imageEditorLinks.url         { background-position: 0 -158px; left: 50px; }
 .imageEditorLinks.sampleImage { background-position: 0 -225px; }
 .toolbarButtons .preset .icon { background-position: 4px -193px; }
 .toolbarButtons .custom .icon { background-position: 8px 1px; }

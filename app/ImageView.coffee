@@ -1,4 +1,4 @@
-caman = window.caman = null;
+caman = null;
 
 class ImageView extends JView
 

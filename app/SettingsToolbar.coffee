@@ -72,9 +72,11 @@ class SettingsToolbar extends JView
           when "APPLY_CUSTOM_FILTERS" then delegator.settingsView.emit "SHOW_CUSTOM_FILTERS"
           when "APPLY_PRESET_FILTERS" then delegator.settingsView.emit "SHOW_PRESET_FILTERS"
           when "CANCEL"
-            delegator.imageView.emit "CANCEL_EDITING"
             delegator.settingsView.emit "CANCEL_EDITING"
-    
+            delegator.imageView.emit "CANCEL_EDITING"
+      else 
+        new KDNotificationView
+          title: "Open an image first.."
     
   pistachio: ->
     """

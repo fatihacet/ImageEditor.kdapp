@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Tue Jan 08 2013 11:05:20 GMT-0800 (PST) in server time
+// Compiled by Koding Servers at Tue Jan 08 2013 16:31:22 GMT-0800 (PST) in server time
 
 (function() {
 
@@ -399,7 +399,6 @@ ImageView = (function(_super) {
                 style: "modal-clean-green",
                 type: "submit",
                 callback: function() {
-                  debugger;
                   var inputs;
                   inputs = resizeModal.modalTabs.forms.resizeForm.inputs;
                   _this.doResize(inputs.width.getValue(), inputs.height.getValue());
@@ -478,14 +477,17 @@ ImageView = (function(_super) {
   };
 
   ImageView.prototype.openImage = function(imageData) {
-    var accepted, img, imgHeight, imgWidth, timestamp;
+    var accepted, img, imgHeight, imgWidth, timestamp,
+      _this = this;
     this.dropTarget.hide();
     this.openUrlLink.hide();
     this.openSampleImageLink.hide();
     timestamp = +(new Date);
-    imageData = imageData || sampleImageBase64Encoded;
+    imageData = imageData || 'resources/images/edi-budu.jpg';
     this.image.updatePartial("<img id=\"image" + timestamp + "\" src=\"" + imageData + "\"/>");
-    caman = Caman("#image" + timestamp);
+    caman = Caman("#image" + timestamp, function() {
+      return _this.repositionCanvas();
+    });
     img = document.getElementById("image" + timestamp);
     imgWidth = img.width;
     imgHeight = img.height;
@@ -495,11 +497,23 @@ ImageView = (function(_super) {
         width: accepted.width,
         height: accepted.height
       });
-      caman.render();
-      this.resizeNotification.show();
       imageEditor.isResized = true;
+      caman.render();
+      this.repositionCanvas();
+      this.resizeNotification.show();
     }
-    return this.image.show();
+    this.image.show();
+    this.repositionCanvas();
+    return new KDNotificationView({
+      title: "Now apply filters using buttons in the left toolbar!",
+      duration: 2000
+    });
+  };
+
+  ImageView.prototype.repositionCanvas = function() {
+    if (caman && caman.canvas) {
+      return caman.canvas.style.top = this.getHeight() / 2 - caman.canvas.height / 2 + "px";
+    }
   };
 
   ImageView.prototype.cancelEditing = function() {
@@ -661,9 +675,13 @@ SettingsToolbar = (function(_super) {
           case "APPLY_PRESET_FILTERS":
             return delegator.settingsView.emit("SHOW_PRESET_FILTERS");
           case "CANCEL":
-            delegator.imageView.emit("CANCEL_EDITING");
-            return delegator.settingsView.emit("CANCEL_EDITING");
+            delegator.settingsView.emit("CANCEL_EDITING");
+            return delegator.imageView.emit("CANCEL_EDITING");
         }
+      } else {
+        return new KDNotificationView({
+          title: "Open an image first.."
+        });
       }
     });
   }
@@ -913,8 +931,7 @@ SliderField = (function(_super) {
   __extends(SliderField, _super);
 
   function SliderField(options) {
-    var field,
-      _this = this;
+    var _this = this;
     if (options == null) {
       options = {};
     }
@@ -923,7 +940,7 @@ SliderField = (function(_super) {
     this.label = new KDView({
       partial: "<div class=\"label\">" + options.fieldLabel + "</div>"
     });
-    field = new KDInputView({
+    this.field = new KDInputView({
       validate: {
         event: "keyup",
         rules: {
@@ -934,12 +951,11 @@ SliderField = (function(_super) {
         }
       },
       change: function() {
-        return _this.emit("FILTER_CHANGED", field.getValue());
+        return _this.emit("FILTER_CHANGED", _this.field.getValue());
       }
     });
-    field.options.filterKey = options.filterKey;
-    field.setValue(0);
-    this.field = field;
+    this.field.getOptions().filterKey = options.filterKey;
+    this.field.setValue(0);
   }
 
   SliderField.prototype.pistachio = function() {

@@ -66,6 +66,7 @@ class ImageView extends JView
     @on "CROP", =>
       @openCropModal()
       
+      
   pistachio: ->
     """
       {{> @dropTarget }}
@@ -139,7 +140,6 @@ class ImageView extends JView
                 style         : "modal-clean-green"
                 type          : "submit"
                 callback      : =>
-                  debugger;
                   inputs = resizeModal.modalTabs.forms.resizeForm.inputs
                   @doResize inputs.width.getValue(), inputs.height.getValue()
                   resizeModal.destroy()
@@ -190,29 +190,44 @@ class ImageView extends JView
 
 
   openImage: (imageData) ->
-      @dropTarget.hide()
-      @openUrlLink.hide()
-      @openSampleImageLink.hide()
+    @dropTarget.hide()
+    @openUrlLink.hide()
+    @openSampleImageLink.hide()
+    
+    timestamp  = +new Date
+    imageData  = imageData or 'resources/images/edi-budu.jpg'
+    @image.updatePartial("""<img id="image#{timestamp}" src="#{imageData}"/>""");
+    
+    caman      = Caman """#image#{timestamp}""", =>
+      @repositionCanvas()
       
-      timestamp  = +new Date
-      imageData  = imageData or sampleImageBase64Encoded
-      @image.updatePartial("""<img id="image#{timestamp}" src="#{imageData}"/>""");
-      caman      = Caman """#image#{timestamp}"""
-      img        = document.getElementById """image#{timestamp}"""
-      imgWidth   = img.width
-      imgHeight  = img.height
+    img        = document.getElementById """image#{timestamp}"""
+    imgWidth   = img.width
+    imgHeight  = img.height
+    
+    
+    if @isBigFromAccepted imgWidth, imgHeight
+      accepted = @calculateResizeDimensions imgWidth, imgHeight
+      caman.resize 
+        width  : accepted.width
+        height : accepted.height
+      imageEditor.isResized = true
       
-      if @isBigFromAccepted imgWidth, imgHeight
-        accepted = @calculateResizeDimensions imgWidth, imgHeight
-        caman.resize 
-          width  : accepted.width
-          height : accepted.height
-        caman.render()
-        @resizeNotification.show()
-        imageEditor.isResized = true
+      caman.render()
+      @repositionCanvas()
+      @resizeNotification.show()
         
-      @image.show()
-      
+    @image.show()
+    @repositionCanvas()
+    
+    new KDNotificationView
+      title    : "Now apply filters using buttons in the left toolbar!"
+      duration : 2000
+  
+  
+  repositionCanvas: ->
+    if caman and caman.canvas
+      caman.canvas.style.top = @getHeight() / 2 - caman.canvas.height / 2 + "px"
   
   cancelEditing: ->
     @dropTarget.show()

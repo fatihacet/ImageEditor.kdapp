@@ -13,7 +13,7 @@ class ImageView extends JView
       partial  : """
         <p class="dropText">Drop your image here from file tree</p>
       """
-      bind     : 'dragstart dragenter dragleave dragend dragover drop'  # TODO: Remove unused events
+      bind     : 'dragstart dragend dragover drop'
       
       
     @openUrlLink = new KDView

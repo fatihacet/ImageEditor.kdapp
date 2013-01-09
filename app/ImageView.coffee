@@ -195,7 +195,7 @@ class ImageView extends JView
     @openSampleImageLink.hide()
     
     timestamp  = +new Date
-    imageData  = imageData or 'resources/images/edi-budu.jpg'
+    imageData  = imageData or sampleImageBase64Encoded
     @image.updatePartial("""<img id="image#{timestamp}" src="#{imageData}"/>""");
     
     caman      = Caman """#image#{timestamp}""", =>

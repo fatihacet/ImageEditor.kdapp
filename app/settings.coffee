@@ -8,9 +8,18 @@ imageEditor =
   # is resized previously
   isResized         : false
   
+  # is resized previously
+  isCropped         : false
+  
   # is there any active editing process
   isProcessing      : false
   
   resizedDimensions :
     width           : null
     height          : null
+    
+  cropData          :
+    width           : null
+    height          : null
+    x               : null
+    y               : null

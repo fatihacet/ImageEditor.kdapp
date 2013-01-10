@@ -35,7 +35,7 @@ class PresetButtonsView extends JView
           filter   : filter
           title    : presetFilters[filter]
           callback : =>
-            caman.revert() unless imageEditor.isResized
+            caman.reset() unless imageEditor.isResized
             caman[button.getOptions().filter]()
             caman.render()
             @parent.emit "FILTERS_REVERTED"

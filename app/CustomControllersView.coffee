@@ -32,7 +32,7 @@ class CustomControllersView extends JView
       
       do (field) ->
         field.on "FILTER_CHANGED", (data) =>
-          caman.revert()
+          caman.reset()
           filters = {}
           
           filterElements.forEach (controller, index) =>
@@ -48,7 +48,7 @@ class CustomControllersView extends JView
     @filterReverted = ->
       filterElements.forEach (controller, index) =>
         controller.field.setValue 0
-      caman.revert()
+      caman.reset()
     
   pistachio: ->
     """

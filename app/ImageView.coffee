@@ -13,7 +13,7 @@ class ImageView extends JView
       partial  : """
         <p class="dropText">Drop your image here from file tree</p>
       """
-      bind     : 'dragstart dragend dragover drop'
+      bind     : "dragstart dragend dragover drop"
       
       
     @openUrlLink = new KDView
@@ -50,17 +50,26 @@ class ImageView extends JView
       path = e.originalEvent.dataTransfer.getData('Text')
       
       if path
-        @doKiteRequest "cat #{path}|base64", (res) => 
+        @fsImage = FSHelper.createFileFromPath path
+        @doKiteRequest "base64 #{path}", (res) => 
           @openImage "data:image/png;base64,#{res}"
+          
       
     @on "CANCEL_EDITING", => 
       @cancelEditing()
       
       
     @on "SAVE", =>
-      new KDNotificationView
-        title: "This feature will be implemented soon. Stay tuned!"
-      
+      [meta, image64] = caman.toBase64().split ","
+      @fsImageTemp = FSHelper.createFileFromPath @fsImage.path + '.txt'
+      @fsImageTemp.save image64, (err, res) => 
+        unless err
+          @doKiteRequest "base64 -d  #{FSHelper.escapeFilePath @fsImageTemp.path} > #{FSHelper.escapeFilePath @fsImage.path} ; rm #{FSHelper.escapeFilePath @fsImageTemp.path}"
+          KD.utils.wait 3000, ->
+            new KDNotificationView
+              type : "mini"
+              title: "Your image has been saved"
+          
       
     @on "RESIZE", =>
       @openResizeModal()
@@ -197,8 +206,7 @@ class ImageView extends JView
     
   doKiteRequest: (command, callback) ->
     KD.getSingleton('kiteController').run command, (err, res) =>
-      console.log res
-      if res
+      unless err
         callback(res) if callback
       else 
         new KDNotificationView

@@ -1,7 +1,4 @@
 class SliderField extends JView
-  
-  # TODO: Revize method naming
-  
   constructor: (options = {}) ->
     
     options.cssClass = "sliderFieldContainer"
@@ -15,6 +12,10 @@ class SliderField extends JView
         """
       
     @field = new KDInputView
+      type          : "number"
+      attributes    :
+        min         : "-100"
+        max         : "100"
       validate      :
         event       : "keyup"
         rules       :

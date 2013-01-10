@@ -13,7 +13,7 @@
     "blocks": {
       "app": {
         "files": [
-          "./lib/caman.full.min.js",
+          "./lib/caman.full.min.latest.js",
           "./app/settings.coffee",
           "./app/SampleImage.coffee",
           "./app/ImageView.coffee",

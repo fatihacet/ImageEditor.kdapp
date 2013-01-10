@@ -295,9 +295,19 @@ class ImageView extends JView
       
     caman.render()
     imageEditor.isResized  = true
-      
-      
+    @cacheResizedDimensions width, height
+    
+    
   doCrop: (width, height, x, y) ->
     caman.crop width, height, x, y
     caman.render()
-    imageEditor.isResized = true
+    imageEditor.isCropped = true
+    @cacheCropData width, height, x, y
+    
+    
+  cacheResizedDimensions: (width, height) ->
+    imageEditor.resizedDimensions = { width, height }
+    
+  
+  cacheCropData: (width, height, x, y) ->
+    imageEditor.cropData = { width, height, x, y }

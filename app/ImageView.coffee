@@ -69,8 +69,8 @@ class ImageView extends JView
             new KDNotificationView
               type : "mini"
               title: "Your image has been saved"
-          
-      
+
+
     @on "RESIZE", =>
       @openResizeModal()
       
@@ -117,7 +117,7 @@ class ImageView extends JView
                   if url
                     @doKiteRequest "curl -klAx #{url}|base64", (res) =>
                       @openImage "data:image/png;base64,#{res}"
-                      imageFromUrlModal.destroy()
+                      imageFromUrlModal.destroy()
               Cancel          :
                 title         : "Cancel"
                 style         : "modal-clean-red"

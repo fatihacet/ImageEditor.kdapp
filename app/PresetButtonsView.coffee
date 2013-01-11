@@ -37,31 +37,36 @@ class PresetButtonsView extends JView
           filter   : filter
           title    : filterName
           callback : =>
-            notification = new KDNotificationView
-              type     : "mini"
-              title    : "Applying #{filterName} filter..."
-              duration : 0
-            
-            if imageEditor.isResized
-              caman.reset()
-              caman.render()
-              caman.resize
-                width  : imageEditor.resizedDimensions.width
-                height : imageEditor.resizedDimensions.height
-              caman.render()
-            
-            if imageEditor.isCropped
-              caman.reset()
-              caman.render()
-              data = imageEditor.cropData
-              caman.crop data.width, data.height, data.x, data.y
-              caman.render()
-            
-            caman[button.getOptions().filter]()
-            caman.render ->
-              notification.notificationSetTitle "#{filterName} filter applied."
-              notification.notificationSetTimer 2000
-            @parent.emit "FILTERS_REVERTED" unless imageEditor.isResized
+            if not imageEditor.isProcessing
+              imageEditor.isProcessing = true
+              notification = new KDNotificationView
+                type     : "mini"
+                title    : "Applying #{filterName} filter..."
+                duration : 0
+              
+              if imageEditor.isResized
+                caman.reset()
+                caman.render()
+                caman.resize
+                  width  : imageEditor.resizedDimensions.width
+                  height : imageEditor.resizedDimensions.height
+                caman.render()
+              
+              if imageEditor.isCropped
+                caman.reset()
+                caman.render()
+                data = imageEditor.cropData
+                caman.crop data.width, data.height, data.x, data.y
+                caman.render()
+              
+              caman[button.getOptions().filter]()
+              caman.render ->
+                notification.notificationSetTitle "#{filterName} filter applied."
+                notification.notificationSetTimer 2000
+                imageEditor.isProcessing = false
+                
+              @parent.emit "FILTERS_REVERTED" unless imageEditor.isResized
+              
           
         @wrapper.addSubView button
           

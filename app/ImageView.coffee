@@ -273,7 +273,7 @@ class ImageView extends JView
   calculateResizeDimensions: (width, height) ->
     maxWidth  = imageEditor.maxDimensions.width
     maxHeight = imageEditor.maxDimensions.height
-  
+    
     if width > maxWidth || height > maxHeight
       widthRatio  = maxWidth / width;
       heightRatio = maxHeight / height;
@@ -286,12 +286,9 @@ class ImageView extends JView
   doResize: (width, height) ->
     if @isBigFromAccepted width, height
       accepted = @calculateResizeDimensions width, height
-      width    = accepted.width
-      height   = accepted.height
+      {width, height} = accepted
       
-    caman.resize
-      width  : width
-      height : height
+    caman.resize { width, height }
       
     caman.render()
     imageEditor.isResized  = true

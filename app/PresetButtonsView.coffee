@@ -30,11 +30,18 @@ class PresetButtonsView extends JView
     
     for filter of presetFilters
       do => 
+        filterName = presetFilters[filter]
+        
         button = new KDButtonView
           cssClass : "#{filter} clean-gray"
           filter   : filter
-          title    : presetFilters[filter]
+          title    : filterName
           callback : =>
+            notification = new KDNotificationView
+              type     : "mini"
+              title    : "Applying #{filterName} filter..."
+              duration : 0
+            
             if imageEditor.isResized
               caman.reset()
               caman.render()
@@ -51,7 +58,9 @@ class PresetButtonsView extends JView
               caman.render()
             
             caman[button.getOptions().filter]()
-            caman.render()
+            caman.render ->
+              notification.notificationSetTitle "#{filterName} filter applied."
+              notification.notificationSetTimer 2000
             @parent.emit "FILTERS_REVERTED" unless imageEditor.isResized
           
         @wrapper.addSubView button

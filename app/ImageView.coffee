@@ -306,6 +306,8 @@ class ImageView extends JView
     new KDNotificationView
       title    : "Now apply filters using buttons in the left toolbar!"
       duration : 2000
+    
+    @getDelegate().settingsView.emit "SHOW_PRESET_FILTERS"
   
   
   repositionCanvas: ->

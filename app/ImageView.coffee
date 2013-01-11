@@ -60,7 +60,7 @@ class ImageView extends JView
       
       
     @on "SAVE", =>
-      @openSaveModal()
+      @openSaveModal @fsImage and @fsImage.path
 
 
     @on "RESIZE", =>
@@ -86,7 +86,10 @@ class ImageView extends JView
     @doKiteRequest "mkdir -p /Users/#{nickname}/ImageEditorFiles/", (res) =>
       [meta, image64] = caman.toBase64().split ","
       
-      filePath = if @fsImage and @fsImage.path then @fsImage.path else "/Users/#{nickname}/ImageEditorFiles/#{name}.png"
+      filePath = "/Users/#{nickname}/ImageEditorFiles/#{name}.png"
+      
+      if @fsImage and @fsImage.path and not name
+        filePath = @fsImage.path
       
       @fsImageTemp = FSHelper.createFileFromPath filePath + '.txt'
       
@@ -98,7 +101,7 @@ class ImageView extends JView
             callback and callback()
     
   
-  openSaveModal: ->
+  openSaveModal: (canOverwrite) ->
     saveModal = new KDModalViewWithForms
       title                   : "Save Your Image"
       content                 : ""
@@ -134,13 +137,16 @@ class ImageView extends JView
                   color       : "#ffffff"
                   diameter    : 16
                 callback      : =>
-                  console.log 'will override'
+                  @doSave false, ->
+                    saveModal.destroy()
               Cancel          :
                 title         : "Cancel"
                 style         : "modal-clean-gray"
                 callback      : ->
                   saveModal.destroy()
-    
+                  
+    saveModal.modalTabs.forms.saveImage.buttons.Overwrite.hide() unless canOverwrite
+  
   
   openImageFromUrlModal: -> 
     imageFromUrlModal = new KDModalViewWithForms

@@ -1,4 +1,4 @@
-// Compiled by Koding Servers at Thu Jan 10 2013 12:24:11 GMT-0800 (PST) in server time
+// Compiled by Koding Servers at Fri Jan 11 2013 14:39:29 GMT-0800 (PST) in server time
 
 (function() {
 
@@ -279,7 +279,7 @@ ImageView = (function(_super) {
     this.dropTarget = new KDView({
       cssClass: "imageViewDropTarget",
       partial: "<p class=\"dropText\">Drop your image here from file tree</p>",
-      bind: "dragstart dragend dragover drop"
+      bind: "dragstart dragend dragover drop dragenter dragleave"
     });
     this.openUrlLink = new KDView({
       tag: "a",
@@ -308,34 +308,28 @@ ImageView = (function(_super) {
     this.resizeNotification.hide();
     this.dropTarget.on("drop", function(e) {
       var path;
-      path = e.originalEvent.dataTransfer.getData('Text');
+      _this.dropTarget.domElement.removeClass("dragover");
+      path = e.originalEvent.dataTransfer.getData("Text");
       if (path) {
-        debugger;
         _this.fsImage = FSHelper.createFileFromPath(path);
         return _this.doKiteRequest("base64 " + path, function(res) {
           return _this.openImage("data:image/png;base64," + res);
         });
       }
     });
+    this.dropTarget.on("dragover", function(e) {
+      return _this.dropTarget.domElement.addClass("dragover");
+    });
+    this.dropTarget.on("dragleave", function(e) {
+      return _this.dropTarget.domElement.removeClass("dragover");
+    });
     this.on("CANCEL_EDITING", function() {
       return _this.cancelEditing();
     });
     this.on("SAVE", function() {
-      debugger;
-      var image64, meta, _ref;
-      _ref = caman.toBase64().split(","), meta = _ref[0], image64 = _ref[1];
-      _this.fsImageTemp = FSHelper.createFileFromPath(_this.fsImage.path + '.txt');
-      return _this.fsImageTemp.save(image64, function(err, res) {
-        if (!err) {
-          _this.doKiteRequest("base64 -d  " + (FSHelper.escapeFilePath(_this.fsImageTemp.path)) + " > " + (FSHelper.escapeFilePath(_this.fsImage.path)) + " ; rm " + (FSHelper.escapeFilePath(_this.fsImageTemp.path)));
-          return KD.utils.wait(3000, function() {
-            return new KDNotificationView({
-              type: "mini",
-              title: "Your image has been saved"
-            });
-          });
-        }
-      });
+      var droppedFilePath;
+      droppedFilePath = _this.fsImage && _this.fsImage.path;
+      return _this.openSaveModal(droppedFilePath);
     });
     this.on("RESIZE", function() {
       return _this.openResizeModal();
@@ -347,6 +341,104 @@ ImageView = (function(_super) {
 
   ImageView.prototype.pistachio = function() {
     return "{{> this.dropTarget}}\n{{> this.openUrlLink}}\n{{> this.openSampleImageLink}}\n{{> this.resizeNotification}}\n{{> this.image}}";
+  };
+
+  ImageView.prototype.doSave = function(name, callback) {
+    var nickname,
+      _this = this;
+    nickname = KD.whoami().profile.nickname;
+    return this.doKiteRequest("mkdir -p /Users/" + nickname + "/ImageEditorFiles/", function(res) {
+      var filePath, image64, meta, pathArr, _ref;
+      _ref = caman.toBase64().split(","), meta = _ref[0], image64 = _ref[1];
+      filePath = "/Users/" + nickname + "/ImageEditorFiles/" + name + ".png";
+      if (_this.fsImage && _this.fsImage.path) {
+        pathArr = _this.fsImage.path.split("/");
+        if (pathArr[pathArr.length - 1].split('.')[0] === name) {
+          filePath = _this.fsImage.path;
+        }
+      }
+      _this.fsImageTemp = FSHelper.createFileFromPath(filePath + '.txt');
+      return _this.fsImageTemp.save(image64, function(err, res) {
+        if (!err) {
+          return _this.doKiteRequest("base64 -d " + (FSHelper.escapeFilePath(_this.fsImageTemp.path)) + " > " + (FSHelper.escapeFilePath(filePath)) + " ; rm " + (FSHelper.escapeFilePath(_this.fsImageTemp.path)), function() {
+            var firstLevelPath, imagesRoot, root, tree,
+              _this = this;
+            new KDNotificationView({
+              title: "Your image has been saved to " + filePath
+            });
+            callback && callback();
+            tree = (KD.getSingleton("finderController")).treeController;
+            root = "/Users/" + nickname;
+            imagesRoot = root + "/ImageEditorFiles";
+            firstLevelPath = tree.nodes[imagesRoot] ? tree.nodes[imagesRoot] : tree.nodes[root];
+            tree.refreshFolder(firstLevelPath);
+            this.fsImage = null;
+            return KD.utils.wait(1000, function() {
+              pathArr = filePath.split("/");
+              pathArr.length = pathArr.length - 1;
+              tree.refreshFolder(tree.nodes[pathArr.join("/")]);
+              return KD.utils.wait(1000, function() {
+                return tree.selectNode(tree.nodes[filePath]);
+              });
+            });
+          });
+        }
+      });
+    });
+  };
+
+  ImageView.prototype.openSaveModal = function(droppedFilePath) {
+    var pathArr, saveModal,
+      _this = this;
+    saveModal = new KDModalViewWithForms({
+      title: "Save Your Image",
+      content: "",
+      cssClass: "saveImageModal",
+      height: "auto",
+      width: 500,
+      overlay: true,
+      tabs: {
+        forms: {
+          saveImage: {
+            fields: {
+              name: {
+                label: "Name: ",
+                placeholder: "Write your image name..."
+              }
+            },
+            buttons: {
+              Save: {
+                title: "Save",
+                style: "modal-clean-green",
+                type: "submit",
+                loader: {
+                  color: "#ffffff",
+                  diameter: 16
+                },
+                callback: function() {
+                  var name;
+                  name = saveModal.modalTabs.forms.saveImage.inputs.name.getValue();
+                  return _this.doSave(name, function() {
+                    return saveModal.destroy();
+                  });
+                }
+              },
+              Cancel: {
+                title: "Cancel",
+                style: "modal-cancel",
+                callback: function() {
+                  return saveModal.destroy();
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+    if (droppedFilePath) {
+      pathArr = droppedFilePath.split('/');
+      return saveModal.modalTabs.forms.saveImage.inputs.name.setValue(pathArr[pathArr.length - 1].split('.')[0]);
+    }
   };
 
   ImageView.prototype.openImageFromUrlModal = function() {
@@ -390,7 +482,7 @@ ImageView = (function(_super) {
               },
               Cancel: {
                 title: "Cancel",
-                style: "modal-clean-red",
+                style: "modal-cancel",
                 callback: function() {
                   return imageFromUrlModal.destroy();
                 }
@@ -439,7 +531,7 @@ ImageView = (function(_super) {
               },
               Cancel: {
                 title: "Cancel",
-                style: "modal-clean-red",
+                style: "modal-cancel",
                 callback: function() {
                   return resizeModal.destroy();
                 }
@@ -496,7 +588,7 @@ ImageView = (function(_super) {
               },
               Cancel: {
                 title: "Cancel",
-                style: "modal-clean-red",
+                style: "modal-cancel",
                 callback: function() {
                   return cropModal.destroy();
                 }
@@ -517,7 +609,8 @@ ImageView = (function(_super) {
         }
       } else {
         return new KDNotificationView({
-          title: "An error occured while processing your request, try again please!"
+          title: "An error occured while processing your request, try again please!",
+          duration: 3000
         });
       }
     });
@@ -551,10 +644,12 @@ ImageView = (function(_super) {
     }
     this.image.show();
     this.repositionCanvas();
-    return new KDNotificationView({
+    new KDNotificationView({
+      type: "mini",
       title: "Now apply filters using buttons in the left toolbar!",
       duration: 2000
     });
+    return this.getDelegate().settingsView.emit("SHOW_PRESET_FILTERS");
   };
 
   ImageView.prototype.repositionCanvas = function() {
@@ -571,7 +666,8 @@ ImageView = (function(_super) {
     this.image.hide();
     this.image.updatePartial("");
     caman = null;
-    return imageEditor.isResized = false;
+    imageEditor.isResized = false;
+    return this.fsImage = null;
   };
 
   ImageView.prototype.isBigFromAccepted = function(width, height) {
@@ -599,8 +695,7 @@ ImageView = (function(_super) {
     var accepted;
     if (this.isBigFromAccepted(width, height)) {
       accepted = this.calculateResizeDimensions(width, height);
-      width = accepted.width;
-      height = accepted.height;
+      width = accepted.width, height = accepted.height;
     }
     caman.resize({
       width: width,
@@ -608,14 +703,16 @@ ImageView = (function(_super) {
     });
     caman.render();
     imageEditor.isResized = true;
-    return this.cacheResizedDimensions(width, height);
+    this.cacheResizedDimensions(width, height);
+    return this.repositionCanvas();
   };
 
   ImageView.prototype.doCrop = function(width, height, x, y) {
     caman.crop(width, height, x, y);
     caman.render();
     imageEditor.isCropped = true;
-    return this.cacheCropData(width, height, x, y);
+    this.cacheCropData(width, height, x, y);
+    return this.repositionCanvas();
   };
 
   ImageView.prototype.cacheResizedDimensions = function(width, height) {
@@ -745,6 +842,7 @@ SettingsToolbar = (function(_super) {
         }
       } else {
         return new KDNotificationView({
+          type: 'mini',
           title: "Open an image first.."
         });
       }
@@ -775,7 +873,7 @@ CustomControllersView = (function(_super) {
   __extends(CustomControllersView, _super);
 
   function CustomControllersView(options) {
-    var field, filter, filterControllers, filterElements, timer, _fn;
+    var field, filter, filterControllers, filterElements, filterMin, from0To100Controllers, timer, _fn;
     if (options == null) {
       options = {};
     }
@@ -793,6 +891,7 @@ CustomControllersView = (function(_super) {
       "vibrance": "Vibrance",
       "clip": "Clip"
     };
+    from0To100Controllers = ["sepia", "hue", "noise", "gamma", "clip"];
     this.wrapper = new KDView;
     filterElements = [];
     timer = null;
@@ -829,9 +928,13 @@ CustomControllersView = (function(_super) {
       });
     };
     for (filter in filterControllers) {
+      filterMin = from0To100Controllers.indexOf(filter) > -1 ? 0 : -100;
+      console.log(filterMin, filter);
       field = new SliderField({
         filterKey: filter,
-        fieldLabel: filterControllers[filter]
+        fieldLabel: filterControllers[filter],
+        filterMax: 100,
+        filterMin: filterMin
       });
       this.wrapper.addSubView(field);
       filterElements.push(field);
@@ -901,33 +1004,46 @@ PresetButtonsView = (function(_super) {
       "concentrate": "Concentrate"
     };
     _fn = function() {
-      var button;
+      var button, filterName;
+      filterName = presetFilters[filter];
       button = new KDButtonView({
         cssClass: "" + filter + " clean-gray",
         filter: filter,
-        title: presetFilters[filter],
+        title: filterName,
         callback: function() {
-          var data;
-          if (imageEditor.isResized) {
-            caman.reset();
-            caman.render();
-            caman.resize({
-              width: imageEditor.resizedDimensions.width,
-              height: imageEditor.resizedDimensions.height
+          var data, notification;
+          if (!imageEditor.isProcessing) {
+            imageEditor.isProcessing = true;
+            notification = new KDNotificationView({
+              type: "mini",
+              title: "Applying " + filterName + " filter...",
+              duration: 0
             });
-            caman.render();
-          }
-          if (imageEditor.isCropped) {
-            caman.reset();
-            caman.render();
-            data = imageEditor.cropData;
-            caman.crop(data.width, data.height, data.x, data.y);
-            caman.render();
-          }
-          caman[button.getOptions().filter]();
-          caman.render();
-          if (!imageEditor.isResized) {
-            return _this.parent.emit("FILTERS_REVERTED");
+            if (imageEditor.isResized) {
+              caman.reset();
+              caman.render();
+              caman.resize({
+                width: imageEditor.resizedDimensions.width,
+                height: imageEditor.resizedDimensions.height
+              });
+              caman.render();
+            }
+            if (imageEditor.isCropped) {
+              caman.reset();
+              caman.render();
+              data = imageEditor.cropData;
+              caman.crop(data.width, data.height, data.x, data.y);
+              caman.render();
+            }
+            caman[button.getOptions().filter]();
+            caman.render(function() {
+              notification.notificationSetTitle("" + filterName + " filter applied.");
+              notification.notificationSetTimer(2000);
+              return imageEditor.isProcessing = false;
+            });
+            if (!imageEditor.isResized) {
+              return _this.parent.emit("FILTERS_REVERTED");
+            }
           }
         }
       });
@@ -1042,8 +1158,8 @@ SliderField = (function(_super) {
     this.field = new KDInputView({
       type: "number",
       attributes: {
-        min: "-100",
-        max: "100"
+        min: options.filterMin,
+        max: options.filterMax
       },
       validate: {
         event: "keyup",

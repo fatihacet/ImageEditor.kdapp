@@ -17,7 +17,15 @@ class CustomControllersView extends JView
       "hue"         : "Hue"
       "vibrance"    : "Vibrance"
       "clip"        : "Clip"
-      
+    
+    from0To100Controllers = [
+      "sepia"
+      "hue"
+      "noise"
+      "gamma"
+      "clip"
+    ]
+    
     @wrapper = new KDView
     
     filterElements = []
@@ -25,9 +33,13 @@ class CustomControllersView extends JView
     timer = null
     
     for filter of filterControllers
+      filterMin = if from0To100Controllers.indexOf(filter) > -1 then 0 else -100
+      console.log filterMin, filter
       field = new SliderField
         filterKey : filter
         fieldLabel: filterControllers[filter]
+        filterMax : 100
+        filterMin : filterMin
         
       @wrapper.addSubView field
       filterElements.push field

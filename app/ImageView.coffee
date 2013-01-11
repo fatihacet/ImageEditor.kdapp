@@ -13,7 +13,7 @@ class ImageView extends JView
       partial  : """
         <p class="dropText">Drop your image here from file tree</p>
       """
-      bind     : "dragstart dragend dragover drop"
+      bind     : "dragstart dragend dragover drop dragenter dragleave"
       
       
     @openUrlLink = new KDView
@@ -47,14 +47,23 @@ class ImageView extends JView
     
     
     @dropTarget.on "drop", (e) =>
-      path = e.originalEvent.dataTransfer.getData('Text')
+      @dropTarget.domElement.removeClass "dragover"
+      path = e.originalEvent.dataTransfer.getData("Text")
       
       if path
         @fsImage = FSHelper.createFileFromPath path
         @doKiteRequest "base64 #{path}", (res) => 
           @openImage "data:image/png;base64,#{res}"
           
+          
+    @dropTarget.on "dragover", (e) =>
+      @dropTarget.domElement.addClass "dragover"
       
+    
+    @dropTarget.on "dragleave", (e) =>
+      @dropTarget.domElement.removeClass "dragover"
+      
+    
     @on "CANCEL_EDITING", => 
       @cancelEditing()
       

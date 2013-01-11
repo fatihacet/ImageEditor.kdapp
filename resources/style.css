@@ -118,6 +118,12 @@
   margin: 20px;
   left: 50px;
 }
+.dragover {
+  background: rgba(0, 255, 10, 0.15);
+  border: 3px solid rgba(70, 173, 21, 0.6);
+  color: rgba(70, 173, 21, 0.9);
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+}
 .dropText {
   font-size: 20px;
   text-align: center;

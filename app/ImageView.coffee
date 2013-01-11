@@ -69,7 +69,8 @@ class ImageView extends JView
       
       
     @on "SAVE", =>
-      @openSaveModal @fsImage and @fsImage.path
+      droppedFilePath = @fsImage and @fsImage.path
+      @openSaveModal droppedFilePath
 
 
     @on "RESIZE", =>
@@ -91,14 +92,16 @@ class ImageView extends JView
     
   doSave: (name, callback) ->
     nickname = KD.whoami().profile.nickname
-      
+    
     @doKiteRequest "mkdir -p /Users/#{nickname}/ImageEditorFiles/", (res) =>
       [meta, image64] = caman.toBase64().split ","
       
       filePath = "/Users/#{nickname}/ImageEditorFiles/#{name}.png"
       
-      if @fsImage and @fsImage.path and not name
-        filePath = @fsImage.path
+      if @fsImage and @fsImage.path
+        pathArr = @fsImage.path.split "/"
+        if pathArr[pathArr.length - 1].split('.')[0] is name
+          filePath = @fsImage.path
       
       @fsImageTemp = FSHelper.createFileFromPath filePath + '.txt'
       
@@ -108,9 +111,25 @@ class ImageView extends JView
             new KDNotificationView
               title: "Your image has been saved to #{filePath}"
             callback and callback()
+            
+            tree             =  (KD.getSingleton "finderController").treeController
+            root             = "/Users/#{nickname}"
+            imagesRoot       = root + "/ImageEditorFiles"
+            firstLevelPath   = if tree.nodes[imagesRoot] then tree.nodes[imagesRoot] else tree.nodes[root]
+            
+            tree.refreshFolder firstLevelPath
+            
+            @fsImage = null
+            
+            KD.utils.wait 1000, =>
+              pathArr = filePath.split "/"
+              pathArr.length = pathArr.length - 1
+              tree.refreshFolder tree.nodes[pathArr.join "/"]
+              KD.utils.wait 1000, =>
+                tree.selectNode tree.nodes[filePath]
     
   
-  openSaveModal: (canOverwrite) ->
+  openSaveModal: (droppedFilePath) ->
     saveModal = new KDModalViewWithForms
       title                   : "Save Your Image"
       content                 : ""
@@ -126,8 +145,8 @@ class ImageView extends JView
                 label         : "Name: "
                 placeholder   : "Write your image name..."
             buttons           :
-              "Save As"       :
-                title         : "Save As"
+              Save            :
+                title         : "Save"
                 style         : "modal-clean-green"
                 type          : "submit"
                 loader        :
@@ -135,26 +154,18 @@ class ImageView extends JView
                   diameter    : 16
                 callback      : =>
                   name = saveModal.modalTabs.forms.saveImage.inputs.name.getValue()
-                  if name
-                    @doSave name, ->
-                      saveModal.destroy()
-              Overwrite       :
-                title         : "Overwrite"
-                style         : "modal-clean-red"
-                type          : "submit"
-                loader        :
-                  color       : "#ffffff"
-                  diameter    : 16
-                callback      : =>
-                  @doSave false, ->
+                  @doSave name, ->
                     saveModal.destroy()
               Cancel          :
                 title         : "Cancel"
                 style         : "modal-cancel"
                 callback      : ->
                   saveModal.destroy()
-                  
-    saveModal.modalTabs.forms.saveImage.buttons.Overwrite.hide() unless canOverwrite
+    
+    if droppedFilePath
+      pathArr = droppedFilePath.split '/'
+      saveModal.modalTabs.forms.saveImage.inputs.name.setValue pathArr[pathArr.length - 1].split('.')[0]
+    
   
   
   openImageFromUrlModal: -> 
@@ -188,7 +199,7 @@ class ImageView extends JView
                       imageFromUrlModal.destroy()
               Cancel          :
                 title         : "Cancel"
-                style         : "modal-close"
+                style         : "modal-cancel"
                 callback      : ->
                   imageFromUrlModal.destroy()
                   
@@ -227,7 +238,7 @@ class ImageView extends JView
                   resizeModal.destroy()
               Cancel          :
                 title         : "Cancel"
-                style         : "modal-close"
+                style         : "modal-cancel"
                 callback      : ->
                   resizeModal.destroy()
 
@@ -267,7 +278,7 @@ class ImageView extends JView
                   cropModal.destroy()
               Cancel          :
                 title         : "Cancel"
-                style         : "modal-close"
+                style         : "modal-cancel"
                 callback      : ->
                   cropModal.destroy()
                   
@@ -278,7 +289,8 @@ class ImageView extends JView
         callback(res) if callback
       else 
         new KDNotificationView
-          title: "An error occured while processing your request, try again please!"
+          title    : "An error occured while processing your request, try again please!"
+          duration : 3000
     
     
   openImage: (imageData) ->
@@ -313,6 +325,7 @@ class ImageView extends JView
     @repositionCanvas()
     
     new KDNotificationView
+      type     : "mini"
       title    : "Now apply filters using buttons in the left toolbar!"
       duration : 2000
     
@@ -333,6 +346,7 @@ class ImageView extends JView
     @image.updatePartial("")
     caman = null
     imageEditor.isResized = false
+    @fsImage = null
   
   
   isBigFromAccepted: (width, height) ->
@@ -363,6 +377,7 @@ class ImageView extends JView
     caman.render()
     imageEditor.isResized  = true
     @cacheResizedDimensions width, height
+    @repositionCanvas()
     
     
   doCrop: (width, height, x, y) ->
@@ -370,6 +385,7 @@ class ImageView extends JView
     caman.render()
     imageEditor.isCropped = true
     @cacheCropData width, height, x, y
+    @repositionCanvas()
     
     
   cacheResizedDimensions: (width, height) ->

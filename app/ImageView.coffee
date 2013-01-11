@@ -150,7 +150,7 @@ class ImageView extends JView
                     saveModal.destroy()
               Cancel          :
                 title         : "Cancel"
-                style         : "modal-clean-gray"
+                style         : "modal-cancel"
                 callback      : ->
                   saveModal.destroy()
                   
@@ -188,7 +188,7 @@ class ImageView extends JView
                       imageFromUrlModal.destroy()
               Cancel          :
                 title         : "Cancel"
-                style         : "modal-clean-red"
+                style         : "modal-close"
                 callback      : ->
                   imageFromUrlModal.destroy()
                   
@@ -227,7 +227,7 @@ class ImageView extends JView
                   resizeModal.destroy()
               Cancel          :
                 title         : "Cancel"
-                style         : "modal-clean-red"
+                style         : "modal-close"
                 callback      : ->
                   resizeModal.destroy()
 
@@ -267,7 +267,7 @@ class ImageView extends JView
                   cropModal.destroy()
               Cancel          :
                 title         : "Cancel"
-                style         : "modal-clean-red"
+                style         : "modal-close"
                 callback      : ->
                   cropModal.destroy()
                   

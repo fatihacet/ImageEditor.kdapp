@@ -76,7 +76,8 @@ class SettingsToolbar extends JView
             delegator.imageView.emit "CANCEL_EDITING"
       else 
         new KDNotificationView
-          title: "Open an image first.."
+          type  : 'mini'
+          title : "Open an image first.."
     
   pistachio: ->
     """

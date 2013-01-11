@@ -60,15 +60,7 @@ class ImageView extends JView
       
       
     @on "SAVE", =>
-      [meta, image64] = caman.toBase64().split ","
-      @fsImageTemp = FSHelper.createFileFromPath @fsImage.path + '.txt'
-      @fsImageTemp.save image64, (err, res) => 
-        unless err
-          @doKiteRequest "base64 -d  #{FSHelper.escapeFilePath @fsImageTemp.path} > #{FSHelper.escapeFilePath @fsImage.path} ; rm #{FSHelper.escapeFilePath @fsImageTemp.path}"
-          KD.utils.wait 3000, ->
-            new KDNotificationView
-              type : "mini"
-              title: "Your image has been saved"
+      @openSaveModal()
 
 
     @on "RESIZE", =>
@@ -87,7 +79,68 @@ class ImageView extends JView
       {{> @resizeNotification }}
       {{> @image }}
     """
+    
+  doSave: (name, callback) ->
+    nickname = KD.whoami().profile.nickname
+      
+    @doKiteRequest "mkdir -p /Users/#{nickname}/ImageEditorFiles/", (res) =>
+      [meta, image64] = caman.toBase64().split ","
+      
+      filePath = if @fsImage and @fsImage.path then @fsImage.path else "/Users/#{nickname}/ImageEditorFiles/#{name}.png"
+      
+      @fsImageTemp = FSHelper.createFileFromPath filePath + '.txt'
+      
+      @fsImageTemp.save image64, (err, res) => 
+        unless err
+          @doKiteRequest "base64 -d #{FSHelper.escapeFilePath @fsImageTemp.path} > #{FSHelper.escapeFilePath filePath} ; rm #{FSHelper.escapeFilePath @fsImageTemp.path}", ->
+            new KDNotificationView
+              title: "Your image has been saved to #{filePath}"
+            callback and callback()
+    
   
+  openSaveModal: ->
+    saveModal = new KDModalViewWithForms
+      title                   : "Save Your Image"
+      content                 : ""
+      cssClass                : "saveImageModal"
+      height                  : "auto"
+      width                   : 500
+      overlay                 : yes
+      tabs                    :
+        forms                 :
+          saveImage           :
+            fields            :
+              name            :
+                label         : "Name: "
+                placeholder   : "Write your image name..."
+            buttons           :
+              "Save As"       :
+                title         : "Save As"
+                style         : "modal-clean-green"
+                type          : "submit"
+                loader        :
+                  color       : "#ffffff"
+                  diameter    : 16
+                callback      : =>
+                  name = saveModal.modalTabs.forms.saveImage.inputs.name.getValue()
+                  if name
+                    @doSave name, ->
+                      saveModal.destroy()
+              Overwrite       :
+                title         : "Overwrite"
+                style         : "modal-clean-red"
+                type          : "submit"
+                loader        :
+                  color       : "#ffffff"
+                  diameter    : 16
+                callback      : =>
+                  console.log 'will override'
+              Cancel          :
+                title         : "Cancel"
+                style         : "modal-clean-gray"
+                callback      : ->
+                  saveModal.destroy()
+    
   
   openImageFromUrlModal: -> 
     imageFromUrlModal = new KDModalViewWithForms

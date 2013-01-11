@@ -14,8 +14,8 @@ class SliderField extends JView
     @field = new KDInputView
       type          : "number"
       attributes    :
-        min         : "-100"
-        max         : "100"
+        min         : options.filterMin
+        max         : options.filterMax
       validate      :
         event       : "keyup"
         rules       :

@@ -34,7 +34,6 @@ class CustomControllersView extends JView
     
     for filter of filterControllers
       filterMin = if from0To100Controllers.indexOf(filter) > -1 then 0 else -100
-      console.log filterMin, filter
       field = new SliderField
         filterKey : filter
         fieldLabel: filterControllers[filter]

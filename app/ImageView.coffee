@@ -52,7 +52,7 @@ class ImageView extends JView
       
       if path
         @fsImage = FSHelper.createFileFromPath path
-        @doKiteRequest "base64 #{path}", (res) => 
+        @doKiteRequest "base64 #{FSHelper.escapeFilePath path}", (res) => 
           @openImage "data:image/png;base64,#{res}"
           
           

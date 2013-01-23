@@ -318,27 +318,14 @@ class ImageView extends JView
     imgWidth   = img.width
     imgHeight  = img.height
     
-    
-    if @isBigFromAccepted imgWidth, imgHeight
-      accepted = @calculateResizeDimensions imgWidth, imgHeight
-      caman.resize 
-        width  : accepted.width
-        height : accepted.height
-      imageEditor.isResized = true
-      
-      caman.render()
-      @repositionCanvas()
-      @resizeNotification.show()
-        
     @image.show()
     @repositionCanvas()
+    @getDelegate().settingsView.emit "SHOW_PRESET_FILTERS"
     
     new KDNotificationView
       type     : "mini"
       title    : "Now apply filters using buttons in the left toolbar!"
       duration : 2000
-    
-    @getDelegate().settingsView.emit "SHOW_PRESET_FILTERS"
   
   
   repositionCanvas: ->
@@ -354,52 +341,19 @@ class ImageView extends JView
     @image.hide()
     @image.updatePartial("")
     caman = null
-    imageEditor.isResized = false
+    imageEditor.isResized = no
     @fsImage = null
   
   
-  isBigFromAccepted: (width, height) ->
-    max = imageEditor.maxDimensions
-    width > max.width || height > max.height
-  
-  
-  calculateResizeDimensions: (width, height) ->
-    maxWidth  = imageEditor.maxDimensions.width
-    maxHeight = imageEditor.maxDimensions.height
-    
-    if width > maxWidth || height > maxHeight
-      widthRatio  = maxWidth / width;
-      heightRatio = maxHeight / height;
-      targetRatio = if widthRatio > heightRatio then heightRatio else widthRatio;
-      
-      width : parseInt width  * targetRatio, 10;
-      height: parseInt height * targetRatio, 10;
-      
-  
   doResize: (width, height) ->
-    if @isBigFromAccepted width, height
-      accepted = @calculateResizeDimensions width, height
-      {width, height} = accepted
-      
     caman.resize { width, height }
-      
     caman.render()
-    imageEditor.isResized  = true
-    @cacheResizedDimensions width, height
+    imageEditor.isResized = yes
     @repositionCanvas()
     
     
   doCrop: (width, height, x, y) ->
     caman.crop width, height, x, y
     caman.render()
-    imageEditor.isCropped = true
-    @cacheCropData width, height, x, y
+    imageEditor.isCropped = yes
     @repositionCanvas()
-    
-    
-  cacheResizedDimensions: (width, height) ->
-    imageEditor.resizedDimensions = { width, height }
-    
-  
-  cacheCropData: (width, height, x, y) ->
-    imageEditor.cropData = { width, height, x, y }

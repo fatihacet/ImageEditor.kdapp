@@ -114,7 +114,11 @@ class ImageView extends JView
         unless err
           @doKiteRequest "base64 -d #{FSHelper.escapeFilePath @fsImageTemp.path} > #{FSHelper.escapeFilePath filePath} ; rm #{FSHelper.escapeFilePath @fsImageTemp.path}", ->
             new KDNotificationView
-              title: "Your image has been saved to #{filePath}"
+              type      : "mini"
+              cssClass  : "success"
+              title     : "Your image has been saved to #{filePath}"
+              duration  : 4000 
+              
             callback and callback()
             
             tree             =  (KD.getSingleton "finderController").treeController

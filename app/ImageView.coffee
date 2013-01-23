@@ -50,10 +50,15 @@ class ImageView extends JView
       @dropTarget.domElement.removeClass "dragover"
       path = e.originalEvent.dataTransfer.getData("Text")
       
-      if path
+      if path and KD.utils.getFileType(KD.utils.getFileExtension(path)) is "image"
         @fsImage = FSHelper.createFileFromPath path
         @doKiteRequest "base64 #{FSHelper.escapeFilePath path}", (res) => 
           @openImage "data:image/png;base64,#{res}"
+      else 
+        new KDNotificationView
+          type     : "mini"
+          cssClass : "error"
+          title    : "Dropped file must be an image!"
           
           
     @dropTarget.on "dragover", (e) =>
